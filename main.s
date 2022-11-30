@@ -47,6 +47,11 @@ FLAG_STATUS	EQU 37		;Multipurpose control bits
 #define     POT    PORTA,2
 ;bit R = RESET ON di FLAG_STATUS				
 #define	    R	    0
+;bit A = POT ACTION ON di FLAG_STATUS				
+#define	    PA	    1
+;bit mask for LEDP1 (is the pins linked to LED for the POT action)
+#define	    LEDP1   0b00000001
+;extra OPCODE definition
 #define	    BANK0   BCF STATUS,STATUS_RP0_POSITION
 #define	    BANK1   BSF STATUS,STATUS_RP0_POSITION
 #define	    CLEARC  BCF STATUS,STATUS_C_POSITION	
@@ -72,16 +77,20 @@ INIT:
     CLRF    PORTA           ;init PORTA
     CLRF    PORTB           ;init PORTB
     CLRF    FLAG_STATUS     ;init FLAG_STATUS
-    GOTO    START	    ;start program
+    ; start
+    GOTO    START	    ;goto start program
 
 ;-----------------------------------------------------
 ;start the program    
 START:
+    ;light the first led of PORTB (RB0)
     CLRW                    ;clear W
     MOVLW   0b00000001      ;write in W the bit 0 active
     MOVWF   LED             ;write W in LED
     MOVWF   PORTB           ;Write LED on PORTB
     CLEARC                  ;clear flag C
+    BSF	    FLAG_STATUS,PA  ;set PA flag ON (because the bit 0 of PORTB is ON!)
+                            ;but if at start, POT put C2OUT in OFF, bit 0 wil be OFF!
     GOTO    LOOP            ;jump to LOOP
     
 LOOP:
@@ -115,7 +124,7 @@ GEST_BUTTON:
     MOVF    LED,W           ;Scrive LED in W
     MOVWF   PORTB           ;Scrive W sulla PORTB
     CLEARC                  ;clear flag C
-    CALL    DELAY           ;Ritardo antirimbalzo
+    CALL    DELAY           ;small delay
     GOTO    LOOP
 
 READ_POT:
@@ -126,19 +135,26 @@ READ_POT:
     RETURN
     
 LEDP1_ON:
-    MOVLW   0b00000001	    ;write 1 in W
-    IORLW   LED
-    MOVWF   PORTB	    ;write W on PORTB
-    CLEARC		    ;clear flag C
+    BTFSC   FLAG_STATUS,PA  ;skip if STATUS_FLAG,PA is OFF
+    RETURN
+    CALL    MASK_LED
+    BSF	    FLAG_STATUS,PA  ;set PA flag ON
     RETURN		    
 
 LEDP1_OFF:
-    MOVLW   0b00000000	    ;write 0 in W
-    IORLW   LED
-    MOVWF   PORTB	    ;write W on PORTB
-    CLEARC		    ;clear flag C
+    BTFSS   FLAG_STATUS,PA  ;skip if STATUS_FLAG,PA is ON
+    RETURN
+    CALL    MASK_LED
+    BCF	    FLAG_STATUS,PA  ;set PA flag OFF
     RETURN		    
-    
+
+MASK_LED:
+    MOVLW   LEDP1	    ;write LEPD1 bit mask in W
+    XORWF   LED,W           ;combine LEDP1_OFF XOR LED
+    MOVWF   LED		    ;invert LEPD1 bits of LED register!
+    MOVWF   PORTB           ;write W on PORTB
+    CLEARC                  ;clear flag C
+    RETURN
 SHIFT:
     BTFSC   LED,7           ;if bit 7 of LED == 0 skip
     CALL    RESET_LED
@@ -166,9 +182,9 @@ RESET_LED:
 DELAY:
     ;init 2 bytes counter
     ;8 cycles
-    MOVLW     0x2B	    ;Load 0x2B66 in H_CONT e L_CONT
+    MOVLW     0x56	    ;Load 0x2B66 in H_CONT e L_CONT
     MOVWF     H_CONT	    
-    MOVLW     0x66	    
+    MOVLW     0xCC	    
     MOVWF     L_CONT	    
     GOTO      DELAY2	    
     

@@ -8,10 +8,10 @@
 
 ### Memory Usage ###
  Intel Hex-file ranges:
-  0h - 9Bh		(dist/default/production\PIC16F628_AS_LEDS_BUTTONS_POTS.X.production.hex)
+  0h - A9h		(dist/default/production\PIC16F628_AS_LEDS_BUTTONS_POTS.X.production.hex)
   400Eh - 400Fh		(dist/default/production\PIC16F628_AS_LEDS_BUTTONS_POTS.X.production.hex)
  Unused ranges:
-  9Ch - 400Dh
+  AAh - 400Dh
 
 ### Hex Memory Map ###
  Legend:
@@ -29,6 +29,7 @@
 00000060 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
 00000070 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
 00000080 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
-00000090 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 -- -- -- --
+00000090 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+000000A0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 -- -- -- -- -- --
 ----------------------------------------------------------
 00004000 | -- -- -- -- -- -- -- -- -- -- -- -- -- -- H1 H1
